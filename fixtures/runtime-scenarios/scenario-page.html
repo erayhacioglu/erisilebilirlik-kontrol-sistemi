@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <title>Scenario Fixture</title>
+  <style>
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <h1>Scenario Fixture</h1>
+  <img src="/broken.png">
+
+  <button data-bs-toggle="modal" onclick="openModal()">Modal Aç</button>
+  <dialog id="m">
+    <button aria-label="Kapat" onclick="closeModal()">Kapat</button>
+  </dialog>
+
+  <button aria-haspopup="listbox" aria-expanded="false" aria-controls="dd-list" aria-label="Seçim" onclick="toggleDd(this)">Açılır Menü</button>
+  <ul id="dd-list" role="listbox" class="hidden">
+    <li role="option">A</li>
+  </ul>
+
+  <form id="f" onsubmit="return invalidateForm(event)">
+    <label for="email">E-posta</label>
+    <input id="email" required>
+    <button type="submit">Gönder</button>
+    <span id="err" class="hidden" role="alert">Hata</span>
+  </form>
+
+  <button data-toast-trigger onclick="showToast()">Toast Göster</button>
+  <div id="toast" class="hidden" role="status" aria-live="polite">Yükleniyor</div>
+
+  <script>
+    function openModal() {
+      document.getElementById('m').setAttribute('open', '');
+    }
+    function closeModal() {
+      document.getElementById('m').removeAttribute('open');
+    }
+    function toggleDd(btn) {
+      const list = document.getElementById('dd-list');
+      const expanded = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+      if (expanded) list.classList.add('hidden');
+      else list.classList.remove('hidden');
+    }
+    function invalidateForm(e) {
+      e.preventDefault();
+      const input = document.getElementById('email');
+      input.setAttribute('aria-invalid', 'true');
+      document.getElementById('err').classList.remove('hidden');
+      return false;
+    }
+    function showToast() {
+      document.getElementById('toast').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>

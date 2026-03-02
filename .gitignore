@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+out/
+
+# Runtime / temporary
+*.log
+.DS_Store
+Thumbs.db
+ql_out/
+
+# Environment
+.env
+.env.*
+
+# Editors
+.vscode/
+.idea/
+
+# Electron builder cache / artifacts
+*.dmg
+*.exe
+*.zip
+*.blockmap

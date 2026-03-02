@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'" />
+    <title>Erişilebilirlik Denetleyici</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <!-- ===== TITLEBAR ===== -->
+    <div class="titlebar">
+      <div class="titlebar-brand">
+        <span class="brand-icon">♿</span>
+        <span class="brand-text">Erişilebilirlik Denetleyici</span>
+        <span class="brand-version">v1.0.0</span>
+      </div>
+      <nav class="titlebar-nav" id="main-nav">
+        <button class="nav-btn active" data-page="projects">Projeler</button>
+        <button class="nav-btn" data-page="scan">Tarama</button>
+        <button class="nav-btn" data-page="report">Rapor</button>
+        <button class="nav-btn" data-page="checklist">Kontrol Listesi</button>
+        <button class="nav-btn" data-page="settings">Ayarlar</button>
+      </nav>
+      <div class="titlebar-right">
+        <button class="icon-btn" id="notif-btn" title="Bildirimler" aria-label="Bildirimler">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="notif-dot"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== PAGES ===== -->
+    <div class="app-container">
+
+      <!-- PAGE: PROJELER -->
+      <section id="page-projects" class="page active" aria-hidden="false">
+        <div class="page-header">
+          <div>
+            <h1>Projeler</h1>
+            <p class="page-desc">WCAG Level A uyumluluk taraması için proje klasörünüzü seçin.</p>
+          </div>
+        </div>
+
+        <div class="drop-zone" id="drop-zone">
+          <div class="drop-zone-inner">
+            <div class="drop-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </div>
+            <h2>Proje Klasörünü Seçin</h2>
+            <p>HTML, JSX, TSX, Vue ve CSS dosyaları taranır</p>
+            <div class="drop-divider">
+              <span>veya</span>
+            </div>
+            <button class="btn-primary" id="browse-btn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+              Klasör Seç
+            </button>
+          </div>
+        </div>
+
+        <!-- Seçilen proje bilgisi -->
+        <div class="selected-project hidden" id="selected-project">
+          <div class="project-info-card">
+            <div class="project-info-header">
+              <div class="project-icon-lg">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+              </div>
+              <div>
+                <h3 id="project-name">—</h3>
+                <p class="project-path" id="project-path">—</p>
+              </div>
+              <button class="btn-ghost" id="change-folder-btn">Değiştir</button>
+            </div>
+            <div class="project-stats" id="project-stats"></div>
+            <div class="project-actions">
+              <div class="scan-options">
+                <label class="scan-option">
+                  <input type="checkbox" checked disabled />
+                  <span>WCAG 2.2 Level A</span>
+                </label>
+              </div>
+              <button class="btn-accent" id="start-scan-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                Taramayı Başlat
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Son projeler -->
+        <div class="recent-section" id="recent-section">
+          <h3>Son Taramalar</h3>
+          <div class="recent-list" id="recent-list">
+            <div class="empty-state-sm">Henüz tarama yapılmadı.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE: TARAMA -->
+      <section id="page-scan" class="page" aria-hidden="true">
+        <div class="scan-container">
+          <div class="scan-status" id="scan-status">
+            <div class="scan-pulse"></div>
+            <h1>Taranıyor...</h1>
+            <p class="scan-project-name" id="scan-project-label">—</p>
+          </div>
+
+          <div class="progress-card">
+            <div class="progress-top">
+              <span>Genel İlerleme</span>
+              <span class="progress-pct" id="progress-pct">0%</span>
+            </div>
+            <div class="progress-bar-outer">
+              <div
+                class="progress-bar-inner"
+                id="progress-bar"
+                role="progressbar"
+                aria-label="Tarama ilerleme durumu"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="0"
+              ></div>
+            </div>
+            <div class="progress-detail">
+              <span id="progress-files">0 / 0 dosya işlendi</span>
+              <span id="progress-eta">Tahmini: —</span>
+            </div>
+          </div>
+
+          <div class="scan-stats-row">
+            <div class="scan-stat">
+              <span class="stat-label">HTML</span>
+              <span class="stat-value" id="scanned-html">0</span>
+            </div>
+            <div class="scan-stat">
+              <span class="stat-label">BİLEŞEN (JSX/TSX)</span>
+              <span class="stat-value" id="scanned-jsx">0</span>
+            </div>
+            <div class="scan-stat">
+              <span class="stat-label">CSS/SCSS</span>
+              <span class="stat-value" id="scanned-css">0</span>
+            </div>
+            <div class="scan-stat">
+              <span class="stat-label">SORUN</span>
+              <span class="stat-value stat-issues" id="scanned-issues">0</span>
+            </div>
+          </div>
+
+          <div class="terminal" id="terminal">
+            <div class="terminal-header">
+              <span class="terminal-title">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+                KAYIT AKIŞI
+              </span>
+              <div class="terminal-dots">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+              </div>
+            </div>
+            <div class="terminal-body" id="terminal-body" role="log" aria-live="polite" aria-relevant="additions text"></div>
+          </div>
+
+          <button class="btn-danger" id="cancel-scan-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            Taramayı İptal Et
+          </button>
+        </div>
+      </section>
+
+      <!-- PAGE: RAPOR -->
+      <section id="page-report" class="page" aria-hidden="true">
+        <div class="report-header">
+          <div>
+            <div class="report-meta">
+              <span class="badge-version">WCAG 2.2</span>
+              <span class="report-id" id="report-id">Tarama Kimliği: —</span>
+            </div>
+            <h1>Uyumluluk Raporu</h1>
+            <p class="report-subtitle" id="report-subtitle">—</p>
+          </div>
+          <div class="report-actions">
+            <button class="btn-outline" id="rescan-btn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              Yeniden Tara
+            </button>
+            <button class="btn-primary" id="export-btn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              PDF Dışa Aktar
+            </button>
+          </div>
+        </div>
+
+        <!-- Özet Kartlar -->
+        <!-- Otomatik / Manuel / Kısmi ayrım bandı -->
+          <div id="report-type-band" class="report-type-band"></div>
+
+          <div class="report-score-row">
+          <span class="score-label">Erişilebilirlik Skoru:</span>
+          <span id="accessibility-score" class="score-value">—</span>
+        </div>
+        <div class="summary-cards" id="summary-cards">
+          <div class="summary-card critical">
+            <div class="summary-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            </div>
+            <div class="summary-data">
+              <span class="summary-count" id="count-critical">0</span>
+              <span class="summary-label">Kritik Hata</span>
+            </div>
+            <div class="summary-bar"></div>
+          </div>
+          <div class="summary-card warning">
+            <div class="summary-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div class="summary-data">
+              <span class="summary-count" id="count-warning">0</span>
+              <span class="summary-label">Uyarı</span>
+            </div>
+            <div class="summary-bar"></div>
+          </div>
+          <div class="summary-card review">
+            <div class="summary-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            </div>
+            <div class="summary-data">
+              <span class="summary-count" id="count-review">0</span>
+              <span class="summary-label">İnceleme</span>
+            </div>
+            <div class="summary-bar"></div>
+          </div>
+          <div class="summary-card passed">
+            <div class="summary-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div class="summary-data">
+              <span class="summary-count" id="count-passed">0</span>
+              <span class="summary-label">Başarılı</span>
+            </div>
+            <div class="summary-bar"></div>
+          </div>
+        </div>
+
+        <!-- Filtre ve Tablo -->
+        <div class="issues-section">
+          <div class="issues-toolbar">
+            <div class="filter-tabs">
+              <button class="filter-tab active" data-filter="all">Tümü</button>
+              <button class="filter-tab" data-filter="critical">
+                <span class="dot-indicator dot-critical"></span> Kritik
+              </button>
+              <button class="filter-tab" data-filter="warning">
+                <span class="dot-indicator dot-warning"></span> Uyarı
+              </button>
+              <button class="filter-tab" data-filter="review">
+                <span class="dot-indicator dot-review"></span> İnceleme
+              </button>
+            </div>
+            <div class="issues-search">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" placeholder="Kural veya dosya ara..." id="issue-search" />
+            </div>
+          </div>
+
+          <div class="issues-table">
+            <div class="issues-table-head">
+              <span class="col-severity">SEVİYE</span>
+              <span class="col-rule">İHLAL EDİLEN KURAL</span>
+              <span class="col-file">DOSYA YOLU</span>
+              <span class="col-line">SATIR</span>
+              <span class="col-action"></span>
+            </div>
+            <div class="issues-table-body" id="issues-list"></div>
+          </div>
+
+          <div class="issues-footer" id="issues-footer">
+            <span id="issues-count-label">—</span>
+            <div class="pagination">
+              <button class="btn-page" id="prev-page">Önceki</button>
+              <button class="btn-page" id="next-page">Sonraki</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detay Panel -->
+        <div class="detail-panel hidden" id="detail-panel">
+          <div class="detail-panel-inner">
+            <div class="detail-header">
+              <span class="detail-badge" id="detail-badge">KRİTİK</span>
+              <span class="detail-rule-name" id="detail-rule-name">—</span>
+              <button class="detail-close" id="detail-close" aria-label="Detay panelini kapat">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            <h2 id="detail-title">—</h2>
+
+            <div class="detail-block">
+              <h4>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                Açıklama
+              </h4>
+              <p id="detail-description">—</p>
+              <a href="#" class="detail-link" id="detail-wcag-link">WCAG Dokümantasyonu</a>
+            </div>
+
+            <div class="detail-block">
+              <h4>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                Kod Konumu
+              </h4>
+              <div class="code-location">
+                <div class="code-file-bar">
+                  <span id="detail-file">—</span>
+                  <span id="detail-line">—</span>
+                </div>
+                <pre class="code-block" id="detail-code"></pre>
+              </div>
+            </div>
+
+            <div class="detail-block">
+              <h4>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                Önerilen Düzeltme
+              </h4>
+              <div class="fix-suggestion">
+                <pre class="code-fix" id="detail-fix"></pre>
+              </div>
+              <p class="fix-note" id="detail-fix-note">—</p>
+            </div>
+
+            <div class="detail-actions">
+              <button class="btn-outline" id="detail-ignore">Yoksay</button>
+              <button class="btn-accent" id="detail-mark-fixed">Düzeltildi Olarak İşaretle</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE: KONTROL LİSTESİ -->
+      <section id="page-checklist" class="page" aria-hidden="true">
+        <div class="page-header">
+          <div>
+            <h1>WCAG 2.2 Kontrol Listesi</h1>
+            <p class="page-desc">122 soru — koşullu atlama, yıldız beklenti mantığı, otomatik ve manuel doğrulama.</p>
+          </div>
+          <div id="cl-stats" class="cl-stats-row"></div>
+        </div>
+
+        <!-- Medya bağlamı bannerı -->
+        <div id="cl-media-banner" class="cl-media-banner hidden"></div>
+
+        <!-- Filtreler ve arama -->
+        <div class="cl-toolbar">
+          <div class="filter-tabs">
+            <button class="filter-tab cl-filter-tab active" data-filter="all">Tümü</button>
+            <button class="filter-tab cl-filter-tab" data-filter="fail">
+              <span class="dot-indicator dot-critical"></span> Kaldı
+            </button>
+            <button class="filter-tab cl-filter-tab" data-filter="pass">
+              <span class="dot-indicator" style="background:var(--success)"></span> Geçti
+            </button>
+            <button class="filter-tab cl-filter-tab" data-filter="manual">
+              <span class="dot-indicator dot-review"></span> Manuel
+            </button>
+            <button class="filter-tab cl-filter-tab" data-filter="na">
+              <span class="dot-indicator dot-warning"></span> Uygulanamaz
+            </button>
+          </div>
+          <div class="issues-search">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="Soru veya WCAG ara..." id="cl-search" />
+          </div>
+        </div>
+
+        <!-- Kontrol listesi öğeleri -->
+        <div id="checklist-items" class="checklist-container">
+          <div class="cl-empty">Tarama yapıldıktan sonra kontrol listesi burada görünür.</div>
+        </div>
+      </section>
+
+      <!-- PAGE: AYARLAR -->
+      <section id="page-settings" class="page" aria-hidden="true">
+        <div class="page-header">
+          <div>
+            <h1>Ayarlar</h1>
+            <p class="page-desc">Tarama tercihlerini ve uygulama ayarlarını yapılandırın.</p>
+          </div>
+        </div>
+
+        <div class="settings-grid">
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <h3>Tarama Ayarları</h3>
+            </div>
+            <div class="setting-row">
+              <div>
+                <label>Aktif tarama profili</label>
+                <p class="setting-hint">Bu sürümde WCAG 2.2 Level A zorunlu ve sabittir</p>
+              </div>
+              <div>WCAG 2.2 Level A</div>
+            </div>
+          </div>
+
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-6"/></svg>
+              <h3>Kural Güvenilirlik Panosu</h3>
+            </div>
+            <div id="rel-summary" class="rel-summary">
+              <div class="setting-hint">Henüz güvenilirlik verisi oluşmadı.</div>
+            </div>
+            <div class="rel-actions">
+              <button class="btn-outline" id="rel-refresh-btn" type="button">Yenile</button>
+              <button class="btn-ghost" id="rel-reset-btn" type="button">Veriyi Sıfırla</button>
+            </div>
+            <div class="rel-list-wrap">
+              <div class="rel-list-title">En düşük güvenli kurallar</div>
+              <div id="rel-low-rules" class="rel-low-rules">
+                <div class="setting-hint">Kural listesi bekleniyor.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <h3>Görünüm</h3>
+            </div>
+            <div class="setting-row">
+              <div>
+                <label>Tema</label>
+                <p class="setting-hint">Uygulama renk teması</p>
+              </div>
+              <select id="setting-theme">
+                <option value="dark" selected>Koyu</option>
+                <option value="light">Açık</option>
+              </select>
+            </div>
+            <div class="setting-row">
+              <div>
+                <label>Terminal satır sayısı</label>
+                <p class="setting-hint">Tarama logunda gösterilecek maksimum satır</p>
+              </div>
+              <select id="setting-terminal-lines">
+                <option value="50">50</option>
+                <option value="100" selected>100</option>
+                <option value="200">200</option>
+                <option value="500">500</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <h3>Dışa Aktarma</h3>
+            </div>
+            <div class="setting-row">
+              <div>
+                <label>Varsayılan format</label>
+                <p class="setting-hint">Rapor dışa aktarma formatı</p>
+              </div>
+              <select id="setting-export-format">
+                <option value="pdf" selected>PDF</option>
+                <option value="json">JSON</option>
+                <option value="csv">CSV</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              <h3>Hakkında</h3>
+            </div>
+            <div class="about-info">
+              <div class="about-row"><span>Uygulama</span><span>Erişilebilirlik Denetleyici</span></div>
+              <div class="about-row"><span>Versiyon</span><span>1.0.0</span></div>
+              <div class="about-row"><span>Electron</span><span id="about-electron">—</span></div>
+              <div class="about-row"><span>Node.js</span><span id="about-node">—</span></div>
+              <div class="about-row"><span>Chromium</span><span id="about-chrome">—</span></div>
+              <div class="about-row"><span>Geliştirici</span><span>Eray Hacıoğlu</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="export-modal hidden" id="export-modal"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="export-modal-title">
+      <div class="export-modal-backdrop"></div>
+      <div class="export-modal-box">
+        <h3 id="export-modal-title">Raporu Dışa Aktar</h3>
+      </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast-container" id="toast-container" aria-live="polite" aria-atomic="false"></div>
+    <div id="sr-status" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+    <div id="sr-alert" class="sr-only" aria-live="assertive" aria-atomic="true"></div>
+
+    <script src="./renderer.js"></script>
+  </body>
+</html>

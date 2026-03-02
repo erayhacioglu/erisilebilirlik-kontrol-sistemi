@@ -1,0 +1,6 @@
+{
+  "rule": "custom-html-lang-tr",
+  "source": "custom-rule",
+  "severity": "critical",
+  "desc": "html lang zorunluluğu sağlanmadı"
+}

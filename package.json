@@ -1,0 +1,48 @@
+{
+  "name": "erisim-kontrol-sistemi",
+  "version": "1.0.0",
+  "description": "EKS - Erişilebilirlik Kontrol Sistemi",
+  "license": "ISC",
+  "author": "Eray Hacıoğlu",
+  "type": "commonjs",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "node run-tests.js",
+    "test:ci": "node scripts/run-ci-tests.js",
+    "dist": "electron-builder",
+    "dist:mac": "electron-builder --mac",
+    "dist:win": "electron-builder --win"
+  },
+  "build": {
+    "appId": "com.erayhacioglu.eks",
+    "productName": "EKS - Erişilebilirlik Kontrol Sistemi",
+    "artifactName": "EKS-${version}-${os}.${ext}",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!*.test.js",
+      "!fixtures/**",
+      "!ql_out/**",
+      "!CI_KROMYUM_KURULUMU.md"
+    ],
+    "asar": true,
+    "mac": {
+      "target": ["dmg", "zip"],
+      "category": "public.app-category.developer-tools"
+    },
+    "win": {
+      "target": ["nsis"]
+    }
+  },
+  "devDependencies": {
+    "electron": "^40.6.1",
+    "electron-builder": "^24.13.3"
+  },
+  "dependencies": {
+    "axe-core": "^4.11.1",
+    "puppeteer": "^24.37.5"
+  }
+}

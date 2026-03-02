@@ -1,0 +1,6 @@
+{
+  "rule": "custom-img-alt-nonempty",
+  "source": "custom-rule",
+  "status": "PASS",
+  "desc": "Tüm img etiketleri doğrulandı"
+}

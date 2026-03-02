@@ -1,0 +1,6 @@
+{
+  "rule": "runtime-scenario-failure",
+  "source": "runtime",
+  "severity": "warning",
+  "desc": "Scenario timeout"
+}

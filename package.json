@@ -1,5 +1,5 @@
 {
-  "name": "erisim-kontrol-sistemi",
+  "name": "erisilebilirlik-kontrol-sistemi",
   "version": "1.0.0",
   "description": "EKS - Erişilebilirlik Kontrol Sistemi",
   "license": "ISC",
@@ -30,16 +30,21 @@
     ],
     "asar": true,
     "mac": {
-      "target": ["dmg", "zip"],
+      "target": [
+        "dmg",
+        "zip"
+      ],
       "category": "public.app-category.developer-tools"
     },
     "win": {
-      "target": ["nsis"]
+      "target": [
+        "nsis"
+      ]
     }
   },
   "devDependencies": {
     "electron": "^40.6.1",
-    "electron-builder": "^24.13.3"
+    "electron-builder": "^26.8.1"
   },
   "dependencies": {
     "axe-core": "^4.11.1",
